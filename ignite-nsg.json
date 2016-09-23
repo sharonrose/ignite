@@ -1,0 +1,91 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "East US",
+            "allowedValues": [
+                "Brazil South",
+                "East Asia",
+                "East US",
+                "Japan East",
+                "Japan West",
+                "North Central US",
+                "North Europe",
+                "South Central US",
+                "West Europe",
+                "West US",
+                "Southeast Asia",
+                "Central US",
+                "East US 2"
+            ],
+            "metadata": {
+                "description": "Network Security Group Deployment Location"
+            }
+        },
+        "networkSecurityGroupName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Network Security Group Name"
+            }
+        },
+        "networkApiVersion": {
+            "type": "string",
+            "defaultValue": "2016-03-30",
+            "metaData": {
+                "description": "API Version for the Network Resources"
+            }
+        },
+        "tag": {
+            "type": "object",
+            "defaultValue": {
+                "key1": "nsg",
+                "value1": "ignite-client"
+            },
+            "metadata": {
+                "description": "Tag Values"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('networkSecurityGroupName')]",
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2015-06-15",
+            "location": "[parameters('location')]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "https",
+                        "properties": {
+                            "priority": 1010,
+                            "sourceAddressPrefix": "*",
+                            "protocol": "Tcp",
+                            "destinationPortRange": "443",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*"
+                        }
+                    },
+                    {
+                        "name": "ssh",
+                        "properties": {
+                            "priority": 1020,
+                            "sourceAddressPrefix": "*",
+                            "protocol": "Tcp",
+                            "destinationPortRange": "22",
+                            "access": "Allow",
+                            "direction": "Inbound",
+                            "sourcePortRange": "*",
+                            "destinationAddressPrefix": "*"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

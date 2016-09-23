@@ -1,0 +1,106 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "East US",
+            "allowedValues": [
+                "Brazil South",
+                "East Asia",
+                "East US",
+                "Japan East",
+                "Japan West",
+                "North Central US",
+                "North Europe",
+                "South Central US",
+                "West Europe",
+                "West US",
+                "Southeast Asia",
+                "Central US",
+                "East US 2"
+            ]
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "User name for the Virtual Machine"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring"
+        },
+        "virtualMachineName": {
+            "type": "string",
+            "defaultValue": "ignite-vm"
+        },
+        "virtualMachineSize": {
+            "type": "string",
+            "defaultValue": "Standard_DS1_V2",
+            "allowedValues": [
+                "Standard_DS1_V2",
+                "Standard_DS2_V2",
+                "Standard_DS3_V2"
+            ]
+        },
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "imageStorageContainerName": {
+            "type": "string",
+            "defaultValue": "ignite-os"
+        },
+        "networkInterfaceName": {
+            "type": "string",
+            "defaultValue": "ignite-nic"
+        }
+    },
+    "variables": {
+        "storageAccName": "[concat(parameters('storageAccountName'),uniqueString(resourceGroup().id))]",
+        "storageContainer": "[concat(parameters('imageStorageContainerName'),uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('virtualMachineName')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2015-06-15",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]",
+                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccName'))]"
+            ],
+            "properties": {
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachineName')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPassword')]"
+                },
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSize')]"
+                },
+                "storageProfile": {
+                    "osDisk": {
+                        "osType": "windows",
+                        "name": "[parameters('virtualMachineName')]",
+                        "createOption": "FromImage",
+                        "image": {
+                            "uri": "https://igniteclientvmstorage.blob.core.windows.net/system/Microsoft.Compute/Images/ignitevmimage/igniteosdisk-osDisk.d03c2dfe-4963-41a4-9bac-ccd275680ccd.vhd"
+                        },
+                        "vhd": {
+                            "uri": "[concat('https://igniteclientvmstorage.blob.core.windows.net/',variables('storageContainer'),'/osDisk.ignite.vhd')]"
+                        },
+                        "caching": "ReadWrite"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

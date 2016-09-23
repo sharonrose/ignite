@@ -1,0 +1,75 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Storage Account Name"
+            }
+        },
+        "storageApiVersion": {
+            "type": "string",
+            "defaultValue": "2015-06-15",
+            "metadata": {
+                "description": "API Version for the Storage Account"
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "East US",
+            "allowedValues": [
+                "Brazil South",
+                "East Asia",
+                "East US",
+                "Japan East",
+                "Japan West",
+                "North Central US",
+                "North Europe",
+                "South Central US",
+                "West Europe",
+                "West US",
+                "Southeast Asia",
+                "Central US",
+                "East US 2"
+            ],
+            "metadata": {
+                "description": "Storage Account Deployment Location"
+            }
+        },
+        "tag": {
+            "type": "object",
+            "defaultValue": {
+                "key1": "StorageAccount",
+                "value1": "ignite-client"
+            },
+            "metadata": {
+                "description": "Tag Values"
+            }
+        },
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Premium_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Premium_LRS"
+            ],
+            "metadata": {
+                "description": "Stoarge Account Type"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[parameters('storageAccountName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2015-06-15",
+            "location": "[parameters('location')]",
+            "properties": {
+                "accountType": "[parameters('storageAccountType')]"
+            }
+        }
+    ]
+}

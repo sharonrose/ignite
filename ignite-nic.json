@@ -1,0 +1,116 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "East US",
+            "allowedValues": [
+                "Brazil South",
+                "East Asia",
+                "East US",
+                "Japan East",
+                "Japan West",
+                "North Central US",
+                "North Europe",
+                "South Central US",
+                "West Europe",
+                "West US",
+                "Southeast Asia",
+                "Central US",
+                "East US 2"
+            ],
+            "metadata": {
+                "description": "Network Security Group Deployment Location"
+            }
+        },
+        "networkApiVersion": {
+            "type": "string",
+            "defaultValue": "2015-06-15",
+            "metadata": {
+                "description": "API Version for the Network Resources"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Virtual Network Name"
+            }
+        },
+        "networkInterfaceName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Network Interface Name"
+            }
+        },
+        "tag": {
+            "type": "object",
+            "defaultValue": {
+                "key1": "nic",
+                "value1": "ignite-client"
+            },
+            "metadata": {
+                "description": "Tag Values"
+            }
+        },
+        "networkSecurityGroupName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Network Security Group Name"
+            }
+        },
+        "publicIPAddressName": {
+            "type": "string",
+            "defaultValue": "publicIPAddress",
+            "metadata": {
+                "description": "Public IP Address Name"
+            }
+        },
+        "subnet1Name": {
+            "type": "string",
+            "defaultValue": "subnet1",
+            "metadata": {
+                "description": "Subnet1 Name"
+            }
+        }
+    },
+    "variables": {
+        "subnetRef": "[concat(resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName')), '/subnets/',parameters('subnet1Name'))]"
+    },
+    "resources": [
+        {
+            "name": "[parameters('networkInterfaceName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2015-06-15",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]",
+                "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]"
+            ],
+            "properties": {
+                "primary": true,
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIpAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                            }
+                        }
+                    }
+                ],
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
+                }
+            }
+        }
+    ]
+}
